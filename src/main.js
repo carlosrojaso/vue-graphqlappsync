@@ -1,39 +1,23 @@
 import Vue from 'vue'
 import App from './App'
+import VueRouter from 'vue-router'
+import { rutas } from "./rutas"
+import Amplify, * as AmplifyModules from 'aws-amplify'
+import { AmplifyPlugin } from 'aws-amplify-vue'
+import awsconfig from './aws-exports'
 
-import AWSAppSyncClient from 'aws-appsync'
-import VueApollo from 'vue-apollo'
-import AppSyncConfig from './aws-exports'
+Amplify.configure(awsconfig)
+
+Vue.use(VueRouter);
+Vue.use(AmplifyPlugin, AmplifyModules)
+
+const enrutador = new VueRouter({
+  routes: rutas
+});
 
 Vue.config.productionTip = false
 
-const config = {
-  url: AppSyncConfig.aws_appsync_graphqlEndpoint,
-  region: AppSyncConfig.aws_appsync_region,
-  auth: {
-    type: AppSyncConfig.aws_appsync_authenticationType,
-    apiKey: AppSyncConfig.aws_appsync_apiKey,
-  }
-}
-const options = {
-  defaultOptions: {
-    watchQuery: {
-      fetchPolicy: 'cache-and-network',
-    }
-  }
-}
-
-const client = new AWSAppSyncClient(config, options)
-
-const appsyncProvider = new VueApollo({
-  defaultClient: client
-})
-
-Vue.use(VueApollo)
-
 new Vue({
-  el: '#app',
-  components: { App },
-  provide: appsyncProvider.provide(),
-  template: '<App/>'
-})
+  router: enrutador,
+  render: h => h(App)
+}).$mount('#app')
